@@ -17,4 +17,4 @@ jobs:
           java --version
           native-image --version
       - name: Example step using Maven plugin  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
-        run: ./mvnw -Pnative native:compile -DskipTests -Dspring.native.mode=compatibility
+        run: ./mvnw package -Dnative
