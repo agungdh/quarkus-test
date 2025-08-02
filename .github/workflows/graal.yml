@@ -1,5 +1,7 @@
 name: Build Native
-on: [ push, pull_request ]
+
+on: [push, pull_request, release]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -7,14 +9,20 @@ jobs:
       - uses: actions/checkout@v4
       - uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21'      # See 'Options' for more details
-          distribution: 'liberica' # See 'Supported distributions' for available options
+          java-version: '21'
+          distribution: 'liberica'
           cache: maven
-      - name: Example step
-        run: |
-          echo "GRAALVM_HOME: $GRAALVM_HOME"
-          echo "JAVA_HOME: $JAVA_HOME"
-          java --version
-          native-image --version
-      - name: Example step using Maven plugin  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
+      - name: Build native image using Maven
         run: ./mvnw package -Dnative
+      - name: Rename output binary for clarity (opsional)
+        run: |
+          mkdir dist
+          mv target/*-runner dist/myapp  # Ganti `myapp` sesuai nama app kamu
+
+      - name: Upload artifact (binary) to GitHub Releases
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/myapp
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
